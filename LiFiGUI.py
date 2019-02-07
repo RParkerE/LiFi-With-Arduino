@@ -7,6 +7,7 @@ from tkinter.filedialog import askopenfilename, asksaveasfilename
 import serial
 import sys
 import Sender
+import Receiver
 
 class SerialGUI:
         def __init__(self):
@@ -143,27 +144,32 @@ class SerialGUI:
 
         # Wirte/Read Serial Port Based On self.commState
         def pushToStart(self):
-            Sender.main(self.fileName)
-            """self.startButton["text"] = "Started..."
+            self.startButton["text"] = "Started..."
             if(self.commState == "send"):
                 try:
+                    Sender.main(self.fileName)
+                    """
                     f = open(self.fileName, "rb")
                     for line in f:
                         data = line
                         self.serialPort.write(data)
                     self.startButton["text"] = "Start"
+                    """
                 except:
                     e = sys.exc_info()[0]
                     print("Error: %s" % e)
             if(self.commState == "receive"):
-                try:
+               # try:
+                Receiver.main(self.fileName)
+                """
                     f = open(self.fileName, "wb")
                     data = self.serialPort.read()
                     while(data):
                         f.write(data)
                         data = self.serialPort.read()
                     self.startButton["text"] = "Start"
-                except:
+                """
+                """except:
                     e = sys.exc_info()[0]
                     print("Error: %s" % e)"""
     
