@@ -9,8 +9,9 @@ import numpy
 import struct
 from array import array
 import zlib
+import time
 
-def sender_driver(file_name, serPort):
+def sender_driver(file_name, serialPort):
 
     count = 0
 
@@ -18,13 +19,13 @@ def sender_driver(file_name, serPort):
     file_obj = file.read()
     file_size = len(file_obj)
     packet_num = math.ceil(file_size/56)
-    padding_size = 60 - (file_size % 56)
+    padding_size = 56 - (file_size % 56)
     padding = '0' * padding_size
     file_obj = file_obj + padding.encode('utf-8')
     file_data = list(zip(*[iter(file_obj)]*56))
 
-    #packet Creater adding 3 bytes index to 48 bytes of data
-    def packet_creater(counter):
+    #packet Creator adding 4 bytes index to 48 bytes of data
+    def packet_creator(counter):
         data = file_data[counter]
         data_byte = bytes(data)
         counter += 1
@@ -37,7 +38,9 @@ def sender_driver(file_name, serPort):
     
     i = 0
     while(i<packet_num):
+        packet = packet_creator(i)
         serialPort.write(packet)
+        time.sleep(0.1)
         i += 1
 
     file.close()
