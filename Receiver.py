@@ -7,7 +7,7 @@ from array import array
 import zlib
 
 def receiver_driver(file_name, serialPort):
-    file = open(self.fileName, "ab")
+    file = open(file_name, "ab")
 
     def data_checker(data):
         calc_crc = zlib.crc32(data)
@@ -17,10 +17,11 @@ def receiver_driver(file_name, serialPort):
         else:
             print("Error Detectected On Packet " + str(packet_num))
             
-    packet_obj = serialPort.read()
+    packet_obj = serialPort.read(64)
+    print(packet_obj)
     packet_num = int.from_bytes(packet_obj[:4], 'big')
     checksum = int.from_bytes(packet_obj[60:], 'big')
-    payload = file_obj[4:60]
+    payload = packet_obj[4:60]
     
     data_checker(payload)
     file.close()

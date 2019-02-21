@@ -19,7 +19,7 @@ class SerialGUI:
             self.createWidgets()
 
             # Global Variables (Mainly For Serial Use)
-            self.serialPort = serial.Serial()
+            self.serialPort = serial.Serial(timeout=5)
             self.baudRate = ""
             self.comPort = ""
             self.commState = ""
@@ -172,7 +172,7 @@ class SerialGUI:
             self.startButton["text"] = "Started..."
             if(self.commState == "send"):
                 try:
-                    Sender.main(self.fileName, self.serialPort)
+                    Sender.sender_driver(self.fileName, self.serialPort)
                     self.startButton["text"] = "Start"
                     """
                     f = open(self.fileName, "rb")
@@ -186,7 +186,7 @@ class SerialGUI:
                     print("Error: %s" % e)
             if(self.commState == "receive"):
                # try:
-                Receiver.main(self.fileName, self.serialPort)
+                Receiver.receiver_driver(self.fileName, self.serialPort)
                 self.startButton["text"] = "Start"
                 """
                     f = open(self.fileName, "wb")
