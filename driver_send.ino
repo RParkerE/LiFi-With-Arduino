@@ -75,7 +75,7 @@ void printbincharpad(char * c)
   for(int i = 0; i <= LENGTH; i++){
     for (int j = 7; j >= 0; --j)
     {
-        binaryNum[i][7-j] = (c[i] & (1 << j)) ? '1' : '0';
+        binaryNum[i][7-j] = (c[i] & (1 << j)) ? 1 : 0;
     }
   }
 }
