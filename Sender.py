@@ -10,7 +10,7 @@ import struct
 from array import array
 import zlib
 
-def sender_driver(file_name):
+def sender_driver(file_name, serPort):
 
     count = 0
 
@@ -36,23 +36,10 @@ def sender_driver(file_name):
         return packet
     
     i = 0
-    allData = b''
     while(i<packet_num):
-        allData += packet_creater(count)
-        count += 1
+        serialPort.write(packet)
         i += 1
 
-    out_file_name = askopenfilename()
-    out_file = open(out_file_name, 'wb')
-    out_file.write(allData)
     file.close()
-    out_file.close()
-
-
-def main(file_name):
-    sender_driver(file_name)
-
-"""if __name__ == "__main__":
-    main()"""
     
     

@@ -5,7 +5,9 @@ from tkinter.filedialog import askopenfilename, asksaveasfilename
 
 # Other Imports
 import serial
+from serial.tools import list_ports
 import sys
+import platform
 import Sender
 import Receiver
 
@@ -83,12 +85,35 @@ class SerialGUI:
             # Start button in the upper right corner
             self.startButton = Button(self.window, text="Start", command=self.pushToStart)
             self.startButton.grid(row=0, column=15)
+        # Get Serial Port Associated With Arduino
+        def getArduinoPort(self):
+            arduino_ports = [
+                    p.device
+                    for p in list_ports.comports()
+                    if 'Arduino' in p.description
+            ]
+            if not arduino_ports:
+                raise IOError("No Arduino Found")
+            if len(arduino_ports) > 1:
+                warnings.warn('Multiple Arduinos Found - Using First One')
+
+            return arduino_ports[0]
 
         # Setup Serial Port To Connect To Specified COM Port At Apecified Baud Rate
         def connectToSerial(self):
+            sys_name = platform.system()
             try:
-                self.comPort = "/dev/" + self.inComPort.get()
-                self.baudRate = self.inBaudRate.get()
+                if self.inComPort.get() == "":
+                    self.comPort = self.getArduinoPort()
+                    self.baudRate = 115200
+                else:
+                    if sys_name == "Windows":
+                        self.comPort = "COM" + self.inComPort.get()
+                        self.baudRate = self.inBaudRate.get()
+                    else:
+                        self.comPort = "/dev/" + self.inComPort.get()
+                        self.baudRate = self.inBaudRate.get()
+
                 self.serialPort.port = self.comPort
                 self.serialPort.baudrate = self.baudRate
                 self.serialPort.open()
@@ -147,7 +172,8 @@ class SerialGUI:
             self.startButton["text"] = "Started..."
             if(self.commState == "send"):
                 try:
-                    Sender.main(self.fileName)
+                    Sender.main(self.fileName, self.serialPort)
+                    self.startButton["text"] = "Start"
                     """
                     f = open(self.fileName, "rb")
                     for line in f:
@@ -160,7 +186,8 @@ class SerialGUI:
                     print("Error: %s" % e)
             if(self.commState == "receive"):
                # try:
-                Receiver.main(self.fileName)
+                Receiver.main(self.fileName, self.serialPort)
+                self.startButton["text"] = "Start"
                 """
                     f = open(self.fileName, "wb")
                     data = self.serialPort.read()
