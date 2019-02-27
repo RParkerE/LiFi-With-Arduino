@@ -25,4 +25,4 @@ os:
   - windows
 
 script:
-  - python LiFiGUI.py
+  - python ./tests/fsm_test.py
