@@ -1,4 +1,4 @@
-# LiFi Communication System
+# LiFi Communication System ![travis-ci-build](https://travis-ci.org/RParkerE/LiFi-Python.svg?branch=dev)
 
 ## Table Of Contents
 1. [Introduction](#introduction)
