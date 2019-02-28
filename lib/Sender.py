@@ -8,26 +8,57 @@ class Sender_Driver:
 #def sender_driver(file_name, serialPort):
 
     def __init__(self, file_name, serialPort):
-        self.packet_list = []
+        self.__packet_list = []
 
-        self.serialPort = serialPort
+        self.__serialPort = serialPort
 
-        self.file = open(file_name, 'rb')
-        self.file_obj = self.file.read()
-        self.file_size = len(self.file_obj)
-        self.packet_num = math.ceil(self.file_size/56)
-        self.padding_size = 56 - (self.file_size % 56)
-        self.padding = '0' * self.padding_size
-        self.file_obj = self.file_obj + self.padding.encode('utf-8')
-        self.file_data = list(zip(*[iter(self.file_obj)]*56))
+        self.__file = open(file_name, 'rb')
+        self.__file_obj = self.__file.read()
+        self.__file_size = len(self.__file_obj)
+        self.__packet_num = math.ceil(self.__file_size/56)
+        self.__padding_size = 56 - (self.__file_size % 56)
+        self.__padding = '0' * self.__padding_size
+        self.__file_obj = self.__file_obj + self.__padding.encode('utf-8')
+        self.__file_data = list(zip(*[iter(self.__file_obj)]*56))
+
+    @property
+    def packet_list(self):
+        return self.__packet_list
+
+    @packet_list.setter
+    def packet_list(self, data):
+        return self.__packet_list.append(data)
+
+    @property
+    def serialPort(self):
+        return self.__serialPort
+
+    @property
+    def file(self):
+        return self.__file.name
+
+    @property
+    def packet_num(self):
+        return self.__packet_num
+
+    @property
+    def padding_size(self):
+        return self.__padding_size
+
+    @property
+    def file_data(self):
+        return self.__file_data
+    
+    
 
     def meta_creator(self):
         index = 0
+        file_name = self.file
         index = index.to_bytes(4, 'big')
         param_1 = self.packet_num.to_bytes(4, 'big')
         param_2 = self.padding_size.to_bytes(1, 'big')
         # TODO: Better implementation of this
-        junk, file_extension = os.path.splitext(self.file.name)
+        junk, file_extension = os.path.splitext(file_name)
         param_3 = bytes(file_extension.encode('utf-8'))
         padding = b'0' * 51
         meta = index + param_1 + param_2 + param_3 + padding
@@ -47,7 +78,7 @@ class Sender_Driver:
         data_crc = zlib.crc32(data_byte) & 0xffffffff
         data_crc = data_crc.to_bytes(4, 'big')
         packet = index + data_byte + data_crc
-        self.packet_list.append(packet)
+        self.packet_list = packet
         return packet
 
 
@@ -61,7 +92,5 @@ class Sender_Driver:
             return out_packet
 
         self.file.close()
-    def get_file_size(self):
-        return self.file_size
         
         
