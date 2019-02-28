@@ -27,7 +27,7 @@ class Sender_Driver:
 
     @packet_list.setter
     def packet_list(self, data):
-        return self.__packet_list.append(data)
+        self.__packet_list.append(data)
 
     @property
     def serialPort(self):
@@ -65,6 +65,8 @@ class Sender_Driver:
         meta_crc = zlib.crc32(meta) & 0xffffffff
         meta_crc = meta_crc.to_bytes(4, 'big')
         meta = index + param_1 + param_2 + param_3 + padding + meta_crc
+        self.serialPort.write(meta)
+        # TODO: FSM on_event to move to Send_Data State
         return meta
         
         
@@ -86,11 +88,10 @@ class Sender_Driver:
         i = 0
         while i < self.packet_num:
             out_packet = self.packet_creator(i)
-            #self.serialPort.write(out_packet)
+            self.serialPort.write(out_packet)
             time.sleep(0.1)
             i += 1
             return out_packet
 
         self.file.close()
-        
-        
+        # TODO: FSM on_event to move to Wait State
