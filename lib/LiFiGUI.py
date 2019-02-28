@@ -5,22 +5,21 @@ from tkinter.filedialog import askopenfilename
 
 # Other Imports
 import serial
-from fsm import FSM
 from serial_connect import connectToSerial, disconnectFromSerial
 
 
 class SerialGUI:
-    def __init__(self):
+    def __init__(self, fsm):
         # Define GUI Window, Call createWidgets()
         self.window = Tk()
         self.window.title("LiFi Communication")
 
         # Global Variables
-        self.state_machine = FSM()
+        self.__state_machine = fsm
         self.serialPort = serial.Serial(timeout=.25)
-        self.baudRate = ""
-        self.comPort = ""
-        self.fileName = ""
+        self.__baudRate = ""
+        self.__comPort = ""
+        self.__fileName = ""
 
         self.window['padx'] = 5
         self.window['pady'] = 5
@@ -68,6 +67,34 @@ class SerialGUI:
         self.startButton = Button(self.window, text="SEND", command=self.pushToSend)
         self.startButton.grid(row=0, column=15)
 
+    @property
+    def state_machine(self):
+        return self.__state_machine
+
+    @property
+    def baudRate(self):
+        return self.__baudRate
+
+    @baudRate.setter
+    def baudRate(self, baud):
+        self.__baudRate = baud
+
+    @property
+    def comPort(self):
+        return self.__comPort
+
+    @comPort.setter
+    def comPort(self, port):
+        self.__comPort = port
+
+    @property
+    def fileName(self):
+        return self.__fileName
+
+    @fileName.setter
+    def fileName(self, name):
+        self.__fileName = name
+
     # Opens File Dialog And Saves Selected File to self.fileName
     def loadFile(self):
         self.fileName = askopenfilename()
@@ -84,5 +111,5 @@ class SerialGUI:
         self.startButton["text"] = "SEND"
 
 
-program = SerialGUI()
-program.window.mainloop()
+# program = SerialGUI()
+# program.window.mainloop()

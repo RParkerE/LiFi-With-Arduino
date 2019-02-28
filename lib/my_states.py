@@ -73,8 +73,8 @@ class Create_Meta(State):
 		return self
 
 	# TODO: Get file_name and serialPort from LiFiGUI
-	sd = Sender_Driver("..\\files\\sender_test.txt", serial.Serial())
-	sd.meta_creator()
+	# sd = Sender_Driver("..\\files\\sender_test.txt", serial.Serial())
+	# sd.meta_creator()
 
 
 class Send_Data(State):
@@ -89,8 +89,8 @@ class Send_Data(State):
 		return self
 
 	# TODO: Get file_name and serialPort from LiFiGUI
-	sd = Sender_Driver("..\\files\\sender_test.txt", serial.Serial())
-	sd.packet_loop()
+	# sd = Sender_Driver("..\\files\\sender_test.txt", serial.Serial())
+	# sd.packet_loop()
 
 
 class Wait(State):
