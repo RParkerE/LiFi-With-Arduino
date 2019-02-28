@@ -13,6 +13,7 @@ before_install:
   # http://docs.travis-ci.com/user/gui-and-headless-browsers/#Starting-a-Web-Server
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
+  - "export PYTHONPATH=$PYTHONPATH:$(pwd)"
 
 install:
   - pip install -r requirements.txt
@@ -23,3 +24,4 @@ os:
 
 script:
   - python ./tests/fsm_test.py
+  - python ./tests/Sender_test.py
