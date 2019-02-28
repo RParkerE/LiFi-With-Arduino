@@ -1,30 +1,51 @@
 import zlib
 
 
-def receiver_driver(file_name, serialPort):
+class Receiver_Driver:
+#def receiver_driver(file_name, serialPort):
 
-    packet_list = []
+    def __init__(self, file_name, serialPort):
+        self.__packet_list = []
 
-    file = open(file_name, "wb")
-    file.write()
-    file.close()
-    file = open(file_name, "ab")
-    
-    def data_checker(data, packet_num):
+        self.__serialPort = serialPort
+
+        self.__file = open(file_name, "wb")
+        self.__file.write()
+        self.__file.close()
+        self.__file = open(file_name, "ab")
+
+    @property
+    def packet_list(self):
+        return self.__packet_list
+
+    @packet_list.setter
+    def packet_list(self, data):
+        return self.__packet_list.append(data)
+
+    @property
+    def serialPort(self):
+        return self.__serialPort
+
+    @property
+    def file(self):
+        return self.__file
+
+    def data_checker(self, data, packet_num, checksum):
         calc_crc = zlib.crc32(data)
         if (checksum == calc_crc) or (checksum + 1 == calc_crc) or (checksum - 1 == calc_crc):
-            packet_list[packet_num - 1] = data
-            file.write(data)
+            self.packet_list = data
+            self.file.write(data)
         else:
-            packet_list[packet_num - 1] = "ERROR"
+            self.packet_list = "ERROR"
             
-    packet_obj = serialPort.read(64)
+    def data_loop(self):
+        packet_obj = self.serialPort.read(64)
 
-    while packet_obj != b'':
-        packet_num = int.from_bytes(packet_obj[:4], 'big')
-        checksum = int.from_bytes(packet_obj[60:], 'big')
-        payload = packet_obj[4:60]
-        data_checker(payload, packet_num)
-        packet_obj = serialPort.read(64)
+        while packet_obj != b'':
+            packet_num = int.from_bytes(packet_obj[:4], 'big')
+            checksum = int.from_bytes(packet_obj[60:], 'big')
+            payload = packet_obj[4:60]
+            self.data_checker(payload, packet_num, checksum)
+            packet_obj = self.serialPort.read(64)
 
-    file.close()
+        self.file.close()
