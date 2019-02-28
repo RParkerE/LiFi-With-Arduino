@@ -1,6 +1,7 @@
-import sys
 import serial
-sys.path.append('../lib/')
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..\\lib')))
 from Sender import Sender_Driver
 
 
