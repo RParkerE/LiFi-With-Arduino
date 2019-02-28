@@ -11,7 +11,7 @@
 6. [Hardware](#hardware)
 
 ### Introduction
-
+The aim of this project is to design and build a demonstration product of a low cost LiFi communication system for the home. The system will consist of a module that encodes and modulates a digital signal into an LED transmitter/receiver pair through the medium of air over a reasonable distance.
 
 ### Code Architecture
 
