@@ -21,6 +21,10 @@ install:
 os:
   - linux
   - osx
+  
+ env:
+  - fsm = ./lib/fsm.py
+  - Sender = ./lib/Sender.py
 
 script:
   - python ./tests/fsm_test.py
