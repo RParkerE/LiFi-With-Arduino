@@ -37,7 +37,7 @@ def connectToSerial(self):
 	self.serialPort.baudrate = self.baudRate
 	self.serialPort.open()
 	if self.serialPort.is_open:
-		self.connectButton["text"] = "Connected: Port " + self.comPort + " at " + self.baudRate
+		self.connectButton["text"] = "Connected: Port " + str(self.comPort) + " at " + str(self.baudRate)
 		self.connectButton.config(state="disabled")
 		self.disconnectButton["text"] = "Disconnect"
 		self.disconnectButton.config(state="normal")
