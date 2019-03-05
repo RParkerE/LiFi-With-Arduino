@@ -7,7 +7,7 @@ import os
 class Sender_Driver:
 #def sender_driver(file_name, serialPort):
 
-    def __init__(self, state_mach, file_name="out.txt", serialPort=None):
+    def __init__(self, state_mach, file_name="..\\files\\out.txt", serialPort=None):
         self.__packet_list = []
         
         self.__my_fsm = state_mach
