@@ -9,13 +9,15 @@ from serial_connect import connectToSerial, disconnectFromSerial
 
 
 class SerialGUI:
-    def __init__(self, fsm):
+    def __init__(self, fsm, sender,receiver):
         # Define GUI Window, Call createWidgets()
         self.window = Tk()
         self.window.title("LiFi Communication")
 
         # Global Variables
         self.__state_machine = fsm
+        self.__sd = sender
+        self.__rd = receiver
         self.serialPort = serial.Serial(timeout=.25)
         self.__baudRate = ""
         self.__comPort = ""
@@ -72,6 +74,22 @@ class SerialGUI:
         return self.__state_machine
 
     @property
+    def sd(self):
+        return self.__sd
+
+    @sd.setter
+    def sd(self, send):
+        self.__sd = send
+
+    @property
+    def rd(self):
+        return self.__rd
+
+    @sd.setter
+    def rd(self, receive):
+        self.__rd = receive
+
+    @property
     def baudRate(self):
         return self.__baudRate
 
@@ -98,12 +116,15 @@ class SerialGUI:
     # Opens File Dialog And Saves Selected File to self.fileName
     def loadFile(self):
         self.fileName = askopenfilename()
+        self.rd.file_name = self.fileName
+        self.sd.file_name = self.fileName
         self.inFileTxt.insert(0, self.fileName)
 
     def pushToSend(self):
         if self.fileName != "":
             self.state_machine.on_event("send")
             self.state_machine.on_event("")
+            self.sd.meta_creator()
             self.startButton["text"] = "SENDING..."
         else:
             messagebox.showerror("Error", "File Must Be Selected To Send")

@@ -7,12 +7,14 @@ import os
 class Sender_Driver:
 #def sender_driver(file_name, serialPort):
 
-    def __init__(self, file_name, serialPort):
+    def __init__(self, state_mach, file_name="out.txt", serialPort=None):
         self.__packet_list = []
-
+        
+        self.__my_fsm = state_mach
         self.__serialPort = serialPort
 
-        self.__file = open(file_name, 'rb')
+        self.__file_name = file_name
+        self.__file = open(self.__file_name, 'rb')
         self.__file_obj = self.__file.read()
         self.__file_size = len(self.__file_obj)
         self.__packet_num = math.ceil(self.__file_size/56)
@@ -30,12 +32,28 @@ class Sender_Driver:
         self.__packet_list.append(data)
 
     @property
+    def my_fsm(self):
+        return self.__my_fsm
+
+    @property
     def serialPort(self):
         return self.__serialPort
 
+    @serialPort.setter
+    def serialPort(self, port):
+        self.__serialPort = port
+
+    @property
+    def file_name(self):
+        return self.__file_name
+
+    @file_name.setter
+    def file_name(self, fn):
+        self.__file_name = fn
+
     @property
     def file(self):
-        return self.__file.name
+        return self.__file
 
     @property
     def packet_num(self):
@@ -53,7 +71,7 @@ class Sender_Driver:
 
     def meta_creator(self):
         index = 0
-        file_name = self.file
+        file_name = self.file_name
         index = index.to_bytes(4, 'big')
         param_1 = self.packet_num.to_bytes(4, 'big')
         param_2 = self.padding_size.to_bytes(1, 'big')
@@ -67,6 +85,8 @@ class Sender_Driver:
         meta = index + param_1 + param_2 + param_3 + padding + meta_crc
         self.serialPort.write(meta)
         # TODO: FSM on_event to move to Send_Data State
+        self.my_fsm.on_event("")
+        self.packet_loop()
         return meta
         
         
@@ -92,6 +112,7 @@ class Sender_Driver:
             time.sleep(0.1)
             i += 1
             return out_packet
+        self.my_fsm.on_event("")
 
         self.file.close()
         # TODO: FSM on_event to move to Wait State
