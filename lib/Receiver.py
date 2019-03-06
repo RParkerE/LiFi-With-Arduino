@@ -16,6 +16,9 @@ class Receiver_Driver:
         self.__file.close()
         self.__file = open(self.__file_name, "ab")
 
+        self.__packets_to_receive = 0
+        self.__zero_padding = 0
+
     @property
     def packet_list(self):
         return self.__packet_list
@@ -48,6 +51,38 @@ class Receiver_Driver:
     def file(self):
         return self.__file
 
+    @property
+    def packets_to_receive(self):
+        return self.__packets_to_receive
+
+    @packets_to_receive.setter
+    def packets_to_receive(self, num):
+        self.__packets_to_receive = num
+
+    @property
+    def zero_padding(self):
+        return self.__zero_padding
+
+    @zero_padding.setter
+    def zero_padding(self, pad):
+        self.__zero_padding = pad
+
+    def parse_meta(self):
+        packet_obj = self.serialPort.read(64)
+        packet_num = int.from_bytes(packet_obj[:4], 'big')
+        checksum = int.from_bytes(packet_obj[60:], 'big')
+        data = packet_obj[4:60]
+        crc = zlib.crc32(data) & 0xffffffff
+        if crc == checksum and packet_num == 0:
+            self.packets_to_receive = int.from_bytes(packet_obj[4:9])
+            self.zero_padding = int.from_bytes(packet_obj[9:12])
+            file_ext = []
+            for bit in packet_obj[12:40]:
+                if bit != b'0':
+                    file_ext.append(bit)
+                else:
+                    pass
+
     def data_checker(self, data, packet_num, checksum):
         calc_crc = zlib.crc32(data)
         if (checksum == calc_crc) or (checksum + 1 == calc_crc) or (checksum - 1 == calc_crc):
@@ -67,3 +102,28 @@ class Receiver_Driver:
             packet_obj = self.serialPort.read(64)
 
         self.file.close()
+
+    def finish_packet(self):
+        index = "DONE"
+        index = index.to_bytes(4, 'big')
+        payload = "THIS FILE HAS BEEN RECEIVED WITH NO ERRORS"
+        payload = bytes(payload.encode('utf-8'))
+        padding = b'0' * 14
+        done = index + payload + padding
+        done_crc = zlib.crc32(done) & 0xffffffff
+        done_crc = done_crc.to_bytes(4, 'big')
+        done = index + payload + padding + done_crc
+        self.serialPort.write(done)
+        return done
+
+    def resend_packet(self):
+        index = "RESE"
+        index = index.to_bytes(4, 'big')
+        error_idx = [i for i, e in enumerate(self.packet_list) if e == "ERROR"]
+        idx_to_send = []
+        for idx in error_idx:
+            idx_to_send.append(idx.to_bytes(4, 'big'))
+        padding_size = (14 - len(idx_to_send)) * 4
+        padding = b'0' * padding_size
+        resend = index + idx_to_send[:-1] + padding
+        return resend
