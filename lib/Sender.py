@@ -114,7 +114,32 @@ class Sender_Driver:
         # TODO: FSM on_event to move to Wait State
 
     def check_finish(self):
-        pass
+        packet_checker = self.serialPort.read(64)
+        packet_num = packet_obj[:4]
+        packet_num = packet_num.decode("utf-8") 
+        checksum = int.from_bytes(packet_checker[60:], 'big')
+        data = packet_checker[4:60]
+        crc = zlib.crc32(data) & 0xffffffff
+        if crc == checksum and packet_num == "DONE":
+            self.my_fsm.on_event('finish')
 
     def check_resend(self):
-        pass
+        packet_checker = self.serialPort.read(64)
+        packet_num = packet_obj[:4]
+        packet_num = packet_num.decode("utf-8")
+        checksum = int.from_bytes(packet_checker[60:], 'big')
+        data = packet_checker[4:60]
+        crc = zlib.crc32(data) & 0xffffffff
+        if crc == checksum and packet_num == "RESE":
+            self.my_fsm.on_event('resend')
+            while data:
+                idx = int.from_bytes(data[:4], 'big')
+                del data[:4]
+                if idx == 0:
+                    pass
+                else:
+                    packet_creator(idx-1)
+                    
+                
+                
+            
