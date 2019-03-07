@@ -1,5 +1,5 @@
 import zlib
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 class Receiver_Driver:
 #def receiver_driver(file_name, serialPort):
