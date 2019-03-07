@@ -2,12 +2,13 @@ import math
 import zlib
 import time
 import os
+from pathlib import Path
 
 
 class Sender_Driver:
 #def sender_driver(file_name, serialPort):
 
-    def __init__(self, state_mach, file_name="..\\files\\out.txt", serialPort=None):
+    def __init__(self, state_mach, file_name=Path("../files/out.txt"), serialPort=None):
         self.__packet_list = []
         
         self.__my_fsm = state_mach
@@ -66,8 +67,6 @@ class Sender_Driver:
     @property
     def file_data(self):
         return self.__file_data
-    
-    
 
     def meta_creator(self):
         index = 0
@@ -88,8 +87,6 @@ class Sender_Driver:
         self.my_fsm.on_event("")
         self.packet_loop()
         return meta
-        
-        
 
     # Packet Creator adding 4 bytes index to 48 bytes of data
     def packet_creator(self, counter):
@@ -103,7 +100,6 @@ class Sender_Driver:
         self.packet_list = packet
         return packet
 
-
     def packet_loop(self):
         i = 0
         while i < self.packet_num:
@@ -116,3 +112,9 @@ class Sender_Driver:
 
         self.file.close()
         # TODO: FSM on_event to move to Wait State
+
+    def check_finish(self):
+        pass
+
+    def check_resend(self):
+        pass

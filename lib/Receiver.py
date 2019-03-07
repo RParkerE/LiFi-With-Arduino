@@ -1,10 +1,10 @@
 import zlib
-
+from pathlib import Path
 
 class Receiver_Driver:
 #def receiver_driver(file_name, serialPort):
 
-    def __init__(self, state_mach, file_name="..\\files\\out.txt", serialPort=None):
+    def __init__(self, state_mach, file_name=Path("../files/out.txt"), serialPort=None):
         self.__packet_list = []
 
         self.__my_fsm = state_mach
