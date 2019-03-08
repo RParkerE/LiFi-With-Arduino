@@ -3,13 +3,19 @@ from tkinter import Tk, ttk
 from tkinter import Label, Button, Entry, messagebox
 from tkinter.filedialog import askopenfilename
 
+# Threading Imports
+import queue
+
 # Other Imports
+import time
 import serial
 from serial_connect import connectToSerial, disconnectFromSerial
 
 
 class SerialGUI:
-    def __init__(self, fsm, sender,receiver):
+    def __init__(self, fsm, sender,receiver, in_queue):
+        self.__my_queue = in_queue
+	
         # Define GUI Window, Call createWidgets()
         self.window = Tk()
         self.window.title("LiFi Communication")
@@ -18,7 +24,7 @@ class SerialGUI:
         self.__state_machine = fsm
         self.__sd = sender
         self.__rd = receiver
-        self.serialPort = serial.Serial(timeout=.25)
+        self.__serialPort = serial.Serial(timeout=.25)
         self.__baudRate = ""
         self.__comPort = ""
         self.__fileName = ""
@@ -70,6 +76,10 @@ class SerialGUI:
         self.startButton.grid(row=0, column=15)
 
     @property
+    def my_queue(self):
+        return self.__my_queue
+
+    @property
     def state_machine(self):
         return self.__state_machine
 
@@ -88,6 +98,14 @@ class SerialGUI:
     @sd.setter
     def rd(self, receive):
         self.__rd = receive
+
+    @property
+    def serialPort(self):
+        return self.__serialPort
+
+    @serialPort.setter
+    def serialPort(self, serial):
+        self.__serialPort = serial
 
     @property
     def baudRate(self):
@@ -131,6 +149,20 @@ class SerialGUI:
 
         self.startButton["text"] = "SEND"
 
+    def threadProcessor(self):
+        while self.my_queue.qsize():
+            try:
+                msg = self.my_queue.get(0)
+                if msg == "meta":
+                    self.state_machine.on_event("")
+                    self.rd.parse_meta()
+                else:
+                    pass
+
+            except queue.Empty:
+                # just on general principles, although we don't
+                # expect this branch to be taken in this case
+                pass
 
 # program = SerialGUI()
 # program.window.mainloop()
