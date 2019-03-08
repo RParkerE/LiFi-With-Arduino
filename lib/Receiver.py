@@ -69,13 +69,14 @@ class Receiver_Driver:
 
     def parse_meta(self):
         packet_obj = self.serialPort.read(64)
+        print(self.serialPort.in_waiting)
         packet_num = int.from_bytes(packet_obj[:4], 'big')
         checksum = int.from_bytes(packet_obj[60:], 'big')
         data = packet_obj[4:60]
         crc = zlib.crc32(data) & 0xffffffff
         if crc == checksum and packet_num == 0:
-            self.packets_to_receive = int.from_bytes(packet_obj[4:9])
-            self.zero_padding = int.from_bytes(packet_obj[9:12])
+            self.packets_to_receive = int.from_bytes(packet_obj[4:9], 'big')
+            self.zero_padding = int.from_bytes(packet_obj[9:12], 'big')
             file_ext = []
             for bit in packet_obj[12:40]:
                 if bit != b'0':
@@ -95,6 +96,7 @@ class Receiver_Driver:
             
     def data_loop(self):
         packet_obj = self.serialPort.read(64)
+        print(self.serialPort.in_waiting)
 
         while packet_obj != b'':
             packet_num = int.from_bytes(packet_obj[:4], 'big')
@@ -120,8 +122,9 @@ class Receiver_Driver:
         self.file.close()
 
     def finish_packet(self):
+        print(self.serialPort.in_waiting)
         index = "DONE"
-        index = index.to_bytes(4, 'big')
+        index = bytes(index.encode('utf-8'))
         payload = "THIS FILE HAS BEEN RECEIVED WITH NO ERRORS"
         payload = bytes(payload.encode('utf-8'))
         padding = b'0' * 14
@@ -134,7 +137,7 @@ class Receiver_Driver:
 
     def resend_packet(self):
         index = "RESE"
-        index = index.to_bytes(4, 'big')
+        index = bytes(index.encode('utf-8'))
         error_idx = [i for i, e in enumerate(self.packet_list) if e == "ERROR"]
         idx_to_send = []
         for idx in error_idx:

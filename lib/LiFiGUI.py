@@ -13,7 +13,7 @@ from serial_connect import connectToSerial, disconnectFromSerial
 
 
 class SerialGUI:
-    def __init__(self, fsm, sender,receiver, in_queue):
+    def __init__(self, fsm, sender, receiver, in_queue):
         self.__my_queue = in_queue
 	
         # Define GUI Window, Call createWidgets()
@@ -24,6 +24,7 @@ class SerialGUI:
         self.__state_machine = fsm
         self.__sd = sender
         self.__rd = receiver
+        
         self.__serialPort = serial.Serial(timeout=.25)
         self.__baudRate = ""
         self.__comPort = ""
@@ -95,7 +96,7 @@ class SerialGUI:
     def rd(self):
         return self.__rd
 
-    @sd.setter
+    @rd.setter
     def rd(self, receive):
         self.__rd = receive
 

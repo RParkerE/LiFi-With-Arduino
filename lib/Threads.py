@@ -1,3 +1,5 @@
+from fsm import Receiver
+
 # Threading Imports
 import time
 import queue
@@ -55,7 +57,7 @@ class ThreadManager:
                                 bytes_ready = self.gui.serialPort.in_waiting
                         else:
                                 bytes_ready = 0
-                        if bytes_ready == 64 and self.fsm.state == "Receiver":
+                        if bytes_ready > 0 and isinstance(self.fsm.state, Receiver):
                                 self.my_queue.put("meta")
                         else:
                                 pass
