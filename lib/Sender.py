@@ -110,7 +110,6 @@ class Sender_Driver:
         self.my_fsm.on_event("")
 
         self.file.close()
-        # TODO: FSM on_event to move to Wait State
 
     def check_finish(self):
         packet_checker = self.serialPort.read(64)

@@ -82,6 +82,8 @@ class Receiver_Driver:
                     file_ext.append(bit)
                 else:
                     pass
+            self.my_fsm.on_event("")
+            self.data_loop()
 
     def data_checker(self, data, packet_num, checksum):
         calc_crc = zlib.crc32(data)
@@ -100,6 +102,20 @@ class Receiver_Driver:
             payload = packet_obj[4:60]
             self.data_checker(payload, packet_num, checksum)
             packet_obj = self.serialPort.read(64)
+
+        i = 0
+        errors = 0
+        while i < len(self.packet_list):
+            if self.packet_list[i] == "ERROR":
+                i += 1
+            else:
+                pass
+        if errors > 0:
+            self.my_fsm.on_event("resend")
+            self.resend_packet()
+        else:
+            self.my_fsm.on_event("finish")
+            self.finish_packet()
 
         self.file.close()
 
