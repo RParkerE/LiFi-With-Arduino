@@ -55,19 +55,43 @@ class Sender_Driver:
     def file(self):
         return self.__file
 
+    @file.setter
+    def file(self, f):
+        self.__file = f
+
     @property
     def packet_num(self):
         return self.__packet_num
+
+    @packet_num.setter
+    def packet_num(self, n):
+        self.__packet_num = n
 
     @property
     def padding_size(self):
         return self.__padding_size
 
+    @padding_size.setter
+    def padding_size(self, n):
+        self.__padding_size = n
+
     @property
     def file_data(self):
         return self.__file_data
 
+    @file_data.setter
+    def file_data(self, fn):
+        self.__file_data = fn
+
     def meta_creator(self):
+        self.file = open(self.file_name, 'rb')
+        self.file_obj = self.file.read()
+        self.file_size = len(self.file_obj)
+        self.packet_num = math.ceil(self.file_size / 56)
+        self.padding_size = 56 - (self.file_size % 56)
+        self.padding = '0' * self.padding_size
+        self.file_obj = self.file_obj + self.padding.encode('utf-8')
+        self.file_data = list(zip(*[iter(self.file_obj)] * 56))
         index = 0
         file_name = self.file_name
         index = index.to_bytes(4, 'big')
@@ -76,21 +100,21 @@ class Sender_Driver:
         # TODO: Better implementation of this
         junk, file_extension = os.path.splitext(file_name)
         param_3 = bytes(file_extension.encode('utf-8'))
-        padding = b'0' * 51
+        param_3 = int.from_bytes(param_3, 'big')
+        param_3 = param_3.to_bytes(10, 'big')
+        padding = b'0' * 41
         meta = index + param_1 + param_2 + param_3 + padding
         meta_crc = zlib.crc32(meta) & 0xffffffff
         meta_crc = meta_crc.to_bytes(4, 'big')
         meta = index + param_1 + param_2 + param_3 + padding + meta_crc
         self.serialPort.write(meta)
-        self.serialPort.flush()
         # TODO: FSM on_event to move to Send_Data State
         self.my_fsm.on_event("")
         self.packet_loop()
-        return meta
 
-    # Packet Creator adding 4 bytes index to 48 bytes of data
+    # Packet Creator adding 4 bytes index to 56 bytes of data and 4 byte checksum
     def packet_creator(self, counter):
-        data = self.file_data[0][counter]
+        data = self.file_data[counter]
         data_byte = bytes(data)
         counter += 1
         index = counter.to_bytes(4, 'big')
@@ -105,10 +129,9 @@ class Sender_Driver:
         while i < self.packet_num:
             out_packet = self.packet_creator(i)
             self.serialPort.write(out_packet)
-            self.serialPort.flush()
             time.sleep(0.1)
             i += 1
-            return out_packet
+
         self.my_fsm.on_event("")
 
         self.file.close()
@@ -139,7 +162,3 @@ class Sender_Driver:
                     pass
                 else:
                     packet_creator(idx-1)
-                    
-                
-                
-            

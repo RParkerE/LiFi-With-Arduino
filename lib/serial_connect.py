@@ -43,6 +43,7 @@ def connectToSerial(self):
 		self.disconnectButton.config(state="normal")
 		self.sd.serialPort = self.serialPort
 		self.rd.serialPort = self.serialPort
+
 	return self.serialPort
 
 

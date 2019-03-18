@@ -68,17 +68,31 @@ class Receiver_Driver:
         self.__zero_padding = pad
 
     def parse_meta(self):
+        # g1 and g2 are variables holding garbage from serial connect
+        """g1 = self.serialPort.read(64)
+        g2 = self.serialPort.read(64)"""
+        print(self.serialPort.read(64))
+        print(self.serialPort.read(64))
+        print(self.serialPort.read(64))
+        print(self.serialPort.read(64))
+        print(self.serialPort.read(64))
+        print(self.serialPort.read(64))
+        print(self.serialPort.read(64))
+        print(self.serialPort.read(64))
+        print(self.serialPort.read(64))
+        print(self.serialPort.read(64))
+        print(self.serialPort.read(64))
+        print(self.serialPort.read(64))
         packet_obj = self.serialPort.read(64)
-        print(self.serialPort.in_waiting)
         packet_num = int.from_bytes(packet_obj[:4], 'big')
         checksum = int.from_bytes(packet_obj[60:], 'big')
         data = packet_obj[4:60]
         crc = zlib.crc32(data) & 0xffffffff
         if crc == checksum and packet_num == 0:
-            self.packets_to_receive = int.from_bytes(packet_obj[4:9], 'big')
-            self.zero_padding = int.from_bytes(packet_obj[9:12], 'big')
+            self.packets_to_receive = int.from_bytes(data[0:4], 'big')
+            self.zero_padding = int.from_bytes(data[4:5], 'big')
             file_ext = []
-            for bit in packet_obj[12:40]:
+            for bit in packet_obj[5:]:
                 if bit != b'0':
                     file_ext.append(bit)
                 else:
@@ -88,7 +102,10 @@ class Receiver_Driver:
 
     def data_checker(self, data, packet_num, checksum):
         calc_crc = zlib.crc32(data)
+        print(checksum)
+        print(calc_crc)
         if (checksum == calc_crc) or (checksum + 1 == calc_crc) or (checksum - 1 == calc_crc):
+            print(data)
             self.packet_list = data
             self.file.write(data)
         else:
@@ -96,7 +113,6 @@ class Receiver_Driver:
             
     def data_loop(self):
         packet_obj = self.serialPort.read(64)
-        print(self.serialPort.in_waiting)
 
         while packet_obj != b'':
             packet_num = int.from_bytes(packet_obj[:4], 'big')
@@ -113,16 +129,15 @@ class Receiver_Driver:
             else:
                 pass
         if errors > 0:
-            self.my_fsm.on_event("resend")
             self.resend_packet()
+            self.my_fsm.on_event("resend")
         else:
-            self.my_fsm.on_event("finish")
             self.finish_packet()
+            self.my_fsm.on_event("finish")
 
         self.file.close()
 
     def finish_packet(self):
-        print(self.serialPort.in_waiting)
         index = "DONE"
         index = bytes(index.encode('utf-8'))
         payload = "THIS FILE HAS BEEN RECEIVED WITH NO ERRORS"

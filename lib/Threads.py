@@ -5,6 +5,7 @@ import time
 import queue
 import threading
 
+
 class ThreadManager:
         def __init__(self, fsm, in_queue, gui):
                 self.__fsm = fsm
@@ -14,6 +15,8 @@ class ThreadManager:
                 self.__running = 1
                 self.__thread1 = threading.Thread(target=self.workerThread1)
                 self.__thread1.start()
+
+                self.__first_flag = 1
 
                 self.periodicCall()
 
@@ -41,6 +44,14 @@ class ThreadManager:
         def thread1(self):
                 return self.__thread1
 
+        @property
+        def first_flag(self):
+                return self.__first_flag
+
+        @first_flag.setter
+        def first_flag(self, val):
+                self.__first_flag = val
+
         def periodicCall(self):
                 self.gui.threadProcessor()
                 if not self.running:
@@ -58,6 +69,10 @@ class ThreadManager:
                         else:
                                 bytes_ready = 0
                         if bytes_ready > 0 and isinstance(self.fsm.state, Receiver):
-                                self.my_queue.put("meta")
+                                if self.first_flag == 1:
+                                        self.my_queue.put("meta")
+                                        self.first_flag = 0
+                                else:
+                                        pass
                         else:
                                 pass
