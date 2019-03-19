@@ -44,6 +44,9 @@ def connectToSerial(self):
 		self.sd.serialPort = self.serialPort
 		self.rd.serialPort = self.serialPort
 
+	while self.serialPort.in_waiting > 0:
+		self.serialPort.read()
+
 	return self.serialPort
 
 

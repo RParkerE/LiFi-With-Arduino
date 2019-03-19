@@ -16,8 +16,6 @@ class ThreadManager:
                 self.__thread1 = threading.Thread(target=self.workerThread1)
                 self.__thread1.start()
 
-                self.__first_flag = 1
-
                 self.periodicCall()
 
         @property
@@ -44,14 +42,6 @@ class ThreadManager:
         def thread1(self):
                 return self.__thread1
 
-        @property
-        def first_flag(self):
-                return self.__first_flag
-
-        @first_flag.setter
-        def first_flag(self, val):
-                self.__first_flag = val
-
         def periodicCall(self):
                 self.gui.threadProcessor()
                 if not self.running:
@@ -59,7 +49,8 @@ class ThreadManager:
                         # some cleanup before actually shutting it down.
                         import sys
                         sys.exit(1)
-                self.gui.window.after(200, self.periodicCall)
+                if self.running:
+                        self.gui.window.after(200, self.periodicCall)
 
         # TODO: Check serial.read() here
         def workerThread1(self):
@@ -68,11 +59,8 @@ class ThreadManager:
                                 bytes_ready = self.gui.serialPort.in_waiting
                         else:
                                 bytes_ready = 0
-                        if bytes_ready > 0 and isinstance(self.fsm.state, Receiver):
-                                if self.first_flag == 1:
-                                        self.my_queue.put("meta")
-                                        self.first_flag = 0
-                                else:
-                                        pass
+                        if bytes_ready > 64 and isinstance(self.fsm.state, Receiver):
+                                self.my_queue.put("meta")
+                                self.running = 0
                         else:
                                 pass

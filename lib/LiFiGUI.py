@@ -15,7 +15,7 @@ from serial_connect import connectToSerial, disconnectFromSerial
 class SerialGUI:
     def __init__(self, fsm, sender, receiver, in_queue):
         self.__my_queue = in_queue
-	
+
         # Define GUI Window, Call createWidgets()
         self.window = Tk()
         self.window.title("LiFi Communication")
