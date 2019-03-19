@@ -17,6 +17,31 @@ home. The system will consist of a module that encodes and modulates a digital s
 pair through the medium of air over a reasonable distance.
 
 ### Code Architecture
+```
+LiFi
+├─── files
+│     └─── out.txt
+├─── firmware
+│     ├── driver_receive
+│     │   └── driver_receive.ino
+│     ├── driver_send
+│     │   └── driver_send.ino
+│     ├── lib
+│     │   │   Arduino-GPIO
+│     │   └── DueTimer
+├─── lib
+│     ├─── fsm.py
+│     ├─── LiFiGUI.py
+│     ├─── main.py
+│     ├─── my_states.py
+│     ├─── Receiver.py
+│     ├─── Sender.py
+│     ├─── serial_connect.py
+│     ├─── state.py
+│     └─── Threads.py
+├─── README.md
+└─── requirements.txt
+```
 
 
 ### GUI
