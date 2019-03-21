@@ -1,3 +1,4 @@
+import time
 import warnings
 import platform
 from serial.tools import list_ports
@@ -35,17 +36,18 @@ def connectToSerial(self):
 
 	self.serialPort.port = self.comPort
 	self.serialPort.baudrate = self.baudRate
+	self.serialPort.setRTS(False)
+	self.serialPort.setDTR(False)
 	self.serialPort.open()
 	if self.serialPort.is_open:
+		self.serialPort.flush()
+		self.serialPort.reset_input_buffer()
 		self.connectButton["text"] = "Connected: Port " + str(self.comPort) + " at " + str(self.baudRate)
 		self.connectButton.config(state="disabled")
 		self.disconnectButton["text"] = "Disconnect"
 		self.disconnectButton.config(state="normal")
 		self.sd.serialPort = self.serialPort
 		self.rd.serialPort = self.serialPort
-
-	while self.serialPort.in_waiting > 0:
-		self.serialPort.read()
 
 	return self.serialPort
 

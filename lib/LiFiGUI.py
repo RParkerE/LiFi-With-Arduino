@@ -4,7 +4,8 @@ from tkinter import Label, Button, Entry, messagebox
 from tkinter.filedialog import askopenfilename
 
 # Threading Imports
-import queue
+from fsm import Receiver
+import threading
 
 # Other Imports
 import time
@@ -12,7 +13,7 @@ import serial
 from serial_connect import connectToSerial, disconnectFromSerial
 
 
-class SerialGUI:
+class SerialGUI(threading.Thread):
     def __init__(self, fsm, sender, receiver, in_queue):
         self.__my_queue = in_queue
 
@@ -25,7 +26,7 @@ class SerialGUI:
         self.__sd = sender
         self.__rd = receiver
         
-        self.__serialPort = serial.Serial(timeout=.25)
+        self.__serialPort = serial.Serial(timeout=0, xonxoff=False, rtscts=False, dsrdtr=False)
         self.__baudRate = ""
         self.__comPort = ""
         self.__fileName = ""
@@ -75,6 +76,9 @@ class SerialGUI:
         # Start button in the upper right corner
         self.startButton = Button(self.window, text="SEND", command=self.pushToSend)
         self.startButton.grid(row=0, column=15)
+
+        threading.Thread.__init__(self)
+        self.start()
 
     @property
     def my_queue(self):
@@ -140,16 +144,33 @@ class SerialGUI:
         self.inFileTxt.insert(0, self.fileName)
 
     def pushToSend(self):
-        if self.fileName != "":
+        if self.fileName != "" and self.serialPort.is_open:
             self.state_machine.on_event("send")
             self.state_machine.on_event("")
             self.sd.meta_creator()
             self.startButton["text"] = "SENDING..."
-        else:
+        elif self.fileName == "":
             messagebox.showerror("Error", "File Must Be Selected To Send")
+        else:
+            messagebox.showerror("Error", "A Serial Connection Is Required")
 
         self.startButton["text"] = "SEND"
 
+    def run(self):
+        loop_active = True
+        while loop_active:
+            if self.serialPort.is_open and isinstance(self.state_machine.state, Receiver):
+                if self.serialPort.in_waiting > 63:
+                    print(self.serialPort.read(self.serialPort.in_waiting))
+                    loop_active = False
+                    self.state_machine.on_event("")
+                    self.rd.parse_meta()
+                else:
+                    pass
+            else:
+                pass
+
+    """
     def threadProcessor(self):
         while self.my_queue.qsize():
             try:
@@ -164,6 +185,7 @@ class SerialGUI:
                 # just on general principles, although we don't
                 # expect this branch to be taken in this case
                 pass
+    """
 
 # program = SerialGUI()
 # program.window.mainloop()

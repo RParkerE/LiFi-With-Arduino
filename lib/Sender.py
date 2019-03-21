@@ -108,6 +108,7 @@ class Sender_Driver:
         meta_crc = meta_crc.to_bytes(4, 'big')
         meta = index + param_1 + param_2 + param_3 + padding + meta_crc
         self.serialPort.write(meta)
+        self.serialPort.flush()
         # TODO: FSM on_event to move to Send_Data State
         self.my_fsm.on_event("")
         self.packet_loop()
@@ -129,7 +130,7 @@ class Sender_Driver:
         while i < self.packet_num:
             out_packet = self.packet_creator(i)
             self.serialPort.write(out_packet)
-            time.sleep(0.1)
+            self.serialPort.flush()
             i += 1
 
         self.my_fsm.on_event("")

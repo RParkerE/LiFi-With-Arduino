@@ -1,5 +1,6 @@
 import os
 import zlib
+import time
 
 class Receiver_Driver:
 #def receiver_driver(file_name, serialPort):
@@ -71,18 +72,7 @@ class Receiver_Driver:
         # g1 and g2 are variables holding garbage from serial connect
         """g1 = self.serialPort.read(64)
         g2 = self.serialPort.read(64)"""
-        print(self.serialPort.read(64))
-        print(self.serialPort.read(64))
-        print(self.serialPort.read(64))
-        print(self.serialPort.read(64))
-        print(self.serialPort.read(64))
-        print(self.serialPort.read(64))
-        print(self.serialPort.read(64))
-        print(self.serialPort.read(64))
-        print(self.serialPort.read(64))
-        print(self.serialPort.read(64))
-        print(self.serialPort.read(64))
-        print(self.serialPort.read(64))
+        #print(self.serialPort.read(192))
         packet_obj = self.serialPort.read(64)
         packet_num = int.from_bytes(packet_obj[:4], 'big')
         checksum = int.from_bytes(packet_obj[60:], 'big')
