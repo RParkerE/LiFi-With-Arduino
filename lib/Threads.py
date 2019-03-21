@@ -1,4 +1,4 @@
-from fsm import Receiver
+from fsm import Receiver, Sender
 
 # Threading Imports
 import time
@@ -49,7 +49,7 @@ class ThreadManager:
                         # some cleanup before actually shutting it down.
                         import sys
                         sys.exit(1)
-                if self.running:
+                else:
                         self.gui.window.after(200, self.periodicCall)
 
         # TODO: Check serial.read() here
@@ -61,6 +61,14 @@ class ThreadManager:
                                 bytes_ready = 0
                         if bytes_ready > 64 and isinstance(self.fsm.state, Receiver):
                                 self.my_queue.put("meta")
-                                self.running = 0
+                                # This is the brutal stop of the system. You may want to do
+                                # some cleanup before actually shutting it down.
+                                import sys
+                                sys.exit(1)
+                        elif isinstance(self.fsm.state, Sender):
+                                # This is the brutal stop of the system. You may want to do
+                                # some cleanup before actually shutting it down.
+                                import sys
+                                sys.exit(1)
                         else:
                                 pass
