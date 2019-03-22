@@ -1,4 +1,4 @@
-from my_states import Receiver
+from my_states import Receiver, Sender
 
 
 class FSM:

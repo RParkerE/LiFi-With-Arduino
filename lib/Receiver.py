@@ -72,7 +72,8 @@ class Receiver_Driver:
         # g1 and g2 are variables holding garbage from serial connect
         """g1 = self.serialPort.read(64)
         g2 = self.serialPort.read(64)"""
-        #print(self.serialPort.read(192))
+        print(self.serialPort.read(64))
+        print(self.serialPort.read(64))
         packet_obj = self.serialPort.read(64)
         packet_num = int.from_bytes(packet_obj[:4], 'big')
         checksum = int.from_bytes(packet_obj[60:], 'big')
@@ -92,10 +93,7 @@ class Receiver_Driver:
 
     def data_checker(self, data, packet_num, checksum):
         calc_crc = zlib.crc32(data)
-        print(checksum)
-        print(calc_crc)
         if (checksum == calc_crc) or (checksum + 1 == calc_crc) or (checksum - 1 == calc_crc):
-            print(data)
             self.packet_list = data
             self.file.write(data)
         else:

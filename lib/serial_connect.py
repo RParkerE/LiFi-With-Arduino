@@ -2,11 +2,14 @@ import time
 import warnings
 import platform
 from serial.tools import list_ports
+import serial
 
 
 # Get Serial Port Associated With Arduino
 def getArduinoPort():
-	arduino_ports = [
+
+	return serial.serial_for_url('loop://', timeout=1)
+	"""arduino_ports = [
 		p.device
 		for p in list_ports.comports()
 		if 'Arduino' in p.description
@@ -17,7 +20,7 @@ def getArduinoPort():
 	if len(arduino_ports) > 1:
 		warnings.warn('Multiple Arduinos Found - Using First One')
 
-	return arduino_ports[0]
+	return arduino_ports[0]"""
 
 
 # Setup Serial Port To Connect To Specified COM Port At Specified Baud Rate
@@ -40,6 +43,7 @@ def connectToSerial(self):
 	self.serialPort.setDTR(False)
 	self.serialPort.open()
 	if self.serialPort.is_open:
+		self.serialPort.reset_output_buffer()
 		self.serialPort.flush()
 		self.serialPort.reset_input_buffer()
 		self.connectButton["text"] = "Connected: Port " + str(self.comPort) + " at " + str(self.baudRate)

@@ -26,7 +26,7 @@ class SerialGUI(threading.Thread):
         self.__sd = sender
         self.__rd = receiver
         
-        self.__serialPort = serial.Serial(timeout=0, xonxoff=False, rtscts=False, dsrdtr=False)
+        self.__serialPort = serial.Serial(timeout=0.25, rtscts=False, dsrdtr=False)
         self.__baudRate = ""
         self.__comPort = ""
         self.__fileName = ""
@@ -161,7 +161,6 @@ class SerialGUI(threading.Thread):
         while loop_active:
             if self.serialPort.is_open and isinstance(self.state_machine.state, Receiver):
                 if self.serialPort.in_waiting > 63:
-                    print(self.serialPort.read(self.serialPort.in_waiting))
                     loop_active = False
                     self.state_machine.on_event("")
                     self.rd.parse_meta()
