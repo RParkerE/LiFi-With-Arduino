@@ -37,16 +37,16 @@ LiFi
 │     ├─── Receiver.py
 │     ├─── Sender.py
 │     ├─── serial_connect.py
-│     ├─── state.py
-│     └─── Threads.py
+│     └─── state.py
 ├─── README.md
 └─── requirements.txt
 ```
 
 
 ### GUI
-The GUI for the driver is built using TkInter. All of the functions used in constructing thr GUI are in LiFiGUI.py. For
-more information on GUI development with TkInter you can look at the following:
+The GUI for the driver is built using TkInter. All of the functions used in constructing thr GUI are in LiFiGUI.py (which also
+has a thread for checking data on the serial line). For more information on GUI development with TkInter you can look at the 
+following:
 
 [TkInter Documentation](https://docs.python.org/3/library/tk.html)
 
@@ -117,8 +117,6 @@ packet corresponds to, otherwise "ERROR" is written to the array at the correspo
 has been checked, if there are no errors, the data is written to a file and the Finish Packet is sent and the state
 machine is pushed to the Receiver state. Otherwise the Resend packet will be sent with up to 14 indices that had errors
 and the state machine is pushed back to the Receive_Data state.
-
-### Threads
 
 ### Firmware
 
