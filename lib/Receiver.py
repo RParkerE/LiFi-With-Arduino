@@ -69,11 +69,6 @@ class Receiver_Driver:
         self.__zero_padding = pad
 
     def parse_meta(self):
-        # g1 and g2 are variables holding garbage from serial connect
-        """g1 = self.serialPort.read(64)
-        g2 = self.serialPort.read(64)"""
-        print(self.serialPort.read(64))
-        print(self.serialPort.read(64))
         packet_obj = self.serialPort.read(64)
         packet_num = int.from_bytes(packet_obj[:4], 'big')
         checksum = int.from_bytes(packet_obj[60:], 'big')
@@ -88,12 +83,13 @@ class Receiver_Driver:
                     file_ext.append(bit)
                 else:
                     pass
+            time.sleep(.025)
             self.my_fsm.on_event("")
             self.data_loop()
 
-    def data_checker(self, data, packet_num, checksum):
+    def data_checker(self, data, checksum):
         calc_crc = zlib.crc32(data)
-        if (checksum == calc_crc) or (checksum + 1 == calc_crc) or (checksum - 1 == calc_crc):
+        if (checksum == calc_crc):
             self.packet_list = data
             self.file.write(data)
         else:
@@ -106,16 +102,16 @@ class Receiver_Driver:
             packet_num = int.from_bytes(packet_obj[:4], 'big')
             checksum = int.from_bytes(packet_obj[60:], 'big')
             payload = packet_obj[4:60]
-            self.data_checker(payload, packet_num, checksum)
+            self.data_checker(payload, checksum)
             packet_obj = self.serialPort.read(64)
 
         i = 0
         errors = 0
         while i < len(self.packet_list):
             if self.packet_list[i] == "ERROR":
-                i += 1
+                errors += 1
             else:
-                pass
+                i += 1
         if errors > 0:
             self.resend_packet()
             self.my_fsm.on_event("resend")
