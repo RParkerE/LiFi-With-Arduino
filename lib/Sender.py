@@ -5,7 +5,6 @@ import os
 
 
 class Sender_Driver:
-#def sender_driver(file_name, serialPort):
 
     def __init__(self, state_mach, file_name=os.path.join('..', 'files', 'out.txt'), serialPort=None):
         self.__packet_list = []
@@ -84,6 +83,9 @@ class Sender_Driver:
         self.__file_data = fn
 
     def meta_creator(self):
+        self.serialPort.reset_input_buffer()
+        self.serialPort.reset_output_buffer()
+
         self.file = open(self.file_name, 'rb')
         self.file_obj = self.file.read()
         self.file_size = len(self.file_obj)
@@ -132,27 +134,24 @@ class Sender_Driver:
             i += 1
 
         self.my_fsm.on_event("")
-
         self.file.close()
+
+        self.check_finish()
 
     def check_finish(self):
         packet_checker = self.serialPort.read(64)
-        packet_num = packet_obj[:4]
+        packet_num = packet_checker[:4]
         packet_num = packet_num.decode("utf-8") 
         checksum = int.from_bytes(packet_checker[60:], 'big')
         data = packet_checker[4:60]
         crc = zlib.crc32(data) & 0xffffffff
+        print(packet_checker)
+
         if crc == checksum and packet_num == "DONE":
+            print("YES")
             self.my_fsm.on_event('finish')
 
-    def check_resend(self):
-        packet_checker = self.serialPort.read(64)
-        packet_num = packet_obj[:4]
-        packet_num = packet_num.decode("utf-8")
-        checksum = int.from_bytes(packet_checker[60:], 'big')
-        data = packet_checker[4:60]
-        crc = zlib.crc32(data) & 0xffffffff
-        if crc == checksum and packet_num == "RESE":
+        elif crc == checksum and packet_num == "RESE":
             self.my_fsm.on_event('resend')
             while data:
                 idx = int.from_bytes(data[:4], 'big')
@@ -160,4 +159,4 @@ class Sender_Driver:
                 if idx == 0:
                     pass
                 else:
-                    packet_creator(idx-1)
+                    self.packet_creator(idx-1)

@@ -3,7 +3,6 @@ import zlib
 import time
 
 class Receiver_Driver:
-#def receiver_driver(file_name, serialPort):
 
     def __init__(self, state_mach, file_name=os.path.join('..', 'files', 'out.txt'), serialPort=None):
         self.__packet_list = []
@@ -132,7 +131,6 @@ class Receiver_Driver:
         done_crc = done_crc.to_bytes(4, 'big')
         done = index + payload + padding + done_crc
         self.serialPort.write(done)
-        return done
 
     def resend_packet(self):
         index = "RESE"
@@ -144,4 +142,4 @@ class Receiver_Driver:
         padding_size = (14 - len(idx_to_send)) * 4
         padding = b'0' * padding_size
         resend = index + idx_to_send[:-1] + padding
-        return resend
+        self.serialPort.write(resend)
