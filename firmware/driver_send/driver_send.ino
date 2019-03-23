@@ -29,7 +29,7 @@ void loop() {
   while(!Serial.available());
 
   while(Serial.available()){
-    //delay(50);
+    delay(50);
 
     for(int i = 0; i<64; i++){
       strArray[i] = Serial.read();
