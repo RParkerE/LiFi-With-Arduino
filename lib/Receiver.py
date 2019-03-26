@@ -1,6 +1,7 @@
 import os
 import zlib
 import time
+from fsm import Receiver
 
 class Receiver_Driver:
 
@@ -73,7 +74,7 @@ class Receiver_Driver:
         checksum = int.from_bytes(packet_obj[60:], 'big')
         data = packet_obj[4:60]
         crc = zlib.crc32(data) & 0xffffffff
-        if crc == checksum and packet_num == 0:
+        if (crc == checksum or crc == checksum + 1 or crc == checksum - 1) and packet_num == 0:
             self.packets_to_receive = int.from_bytes(data[0:4], 'big')
             self.zero_padding = int.from_bytes(data[4:5], 'big')
             file_ext = []
@@ -85,6 +86,8 @@ class Receiver_Driver:
             time.sleep(.025)
             self.my_fsm.on_event("")
             self.data_loop()
+        else:
+            self.my_fsm.state = Receiver()
 
     def data_checker(self, data, checksum):
         calc_crc = zlib.crc32(data)
