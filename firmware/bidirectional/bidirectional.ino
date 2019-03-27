@@ -18,6 +18,8 @@ void setup() {
   //myTimer.attachInterrupt(handler).setPeriod(125);
   pin7in.input();
   pin4out.output();
+  pinMode(DAC0, OUTPUT);
+  analogWrite(DAC0, 96);
 
   Serial.begin(115200);
   Serial1.begin(115200);
@@ -147,5 +149,3 @@ void printbincharpad(char * c) {
     }
   }
 }*/
-
-
