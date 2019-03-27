@@ -22,6 +22,8 @@ class Sender_Driver:
         self.__file_obj = self.__file_obj + self.__padding.encode('utf-8')
         self.__file_data = list(zip(*[iter(self.__file_obj)]*56))
 
+        self.__flag = 0
+
     @property
     def packet_list(self):
         return self.__packet_list
@@ -81,6 +83,14 @@ class Sender_Driver:
     @file_data.setter
     def file_data(self, fn):
         self.__file_data = fn
+
+    @property
+    def flag(self):
+        return self.__flag
+
+    @flag.setter
+    def flag(self, data):
+        self.__flag = data
 
     def meta_creator(self):
         self.serialPort.reset_input_buffer()
@@ -145,14 +155,14 @@ class Sender_Driver:
         checksum = int.from_bytes(packet_checker[60:], 'big')
         data = packet_checker[4:60]
         crc = zlib.crc32(data) & 0xffffffff
-        print(packet_checker)
 
-        if crc == checksum and packet_num == "DONE":
-            print("YES")
+        if (crc == checksum or crc == checksum + 1 or crc == checksum - 1) and packet_num == "DONE":
             self.my_fsm.on_event('finish')
+            self.flag = 1
 
-        elif crc == checksum and packet_num == "RESE":
+        elif (crc == checksum or crc == checksum + 1 or crc == checksum - 1) and packet_num == "RESE":
             self.my_fsm.on_event('resend')
+            self.flag = 0
             while data:
                 idx = int.from_bytes(data[:4], 'big')
                 del data[:4]

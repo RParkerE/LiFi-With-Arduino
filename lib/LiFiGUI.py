@@ -168,7 +168,9 @@ class SerialGUI(threading.Thread):
                     pass
             else:
                 pass
-
+        while not loop_active:
+            loop_active = (self.rd.flag or self.sd.flag)
+        
     """
     def threadProcessor(self):
         while self.my_queue.qsize():

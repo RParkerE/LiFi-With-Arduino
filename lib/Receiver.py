@@ -20,6 +20,8 @@ class Receiver_Driver:
         self.__packets_to_receive = 0
         self.__zero_padding = 0
 
+        self.__flag = 0
+
     @property
     def packet_list(self):
         return self.__packet_list
@@ -68,7 +70,16 @@ class Receiver_Driver:
     def zero_padding(self, pad):
         self.__zero_padding = pad
 
+    @property
+    def flag(self):
+        return self.__flag
+
+    @flag.setter
+    def flag(self, data):
+        self.__flag = data
+
     def parse_meta(self):
+        self.flag = 0
         packet_obj = self.serialPort.read(64)
         packet_num = int.from_bytes(packet_obj[:4], 'big')
         checksum = int.from_bytes(packet_obj[60:], 'big')
@@ -87,6 +98,7 @@ class Receiver_Driver:
             self.my_fsm.on_event("")
             self.data_loop()
         else:
+            self.flag = 1
             self.my_fsm.state = Receiver()
 
     def data_checker(self, data, checksum):
@@ -129,7 +141,7 @@ class Receiver_Driver:
         payload = "THIS FILE HAS BEEN RECEIVED WITH NO ERRORS"
         payload = bytes(payload.encode('utf-8'))
         padding = b'0' * 14
-        done = index + payload + padding
+        done = payload + padding
         done_crc = zlib.crc32(done) & 0xffffffff
         done_crc = done_crc.to_bytes(4, 'big')
         done = index + payload + padding + done_crc
