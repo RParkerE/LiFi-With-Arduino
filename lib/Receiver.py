@@ -98,6 +98,7 @@ class Receiver_Driver:
             self.my_fsm.on_event("")
             self.data_loop()
         else:
+            print(packet_obj)
             self.flag = 1
             self.my_fsm.state = Receiver()
 
@@ -145,6 +146,7 @@ class Receiver_Driver:
         done_crc = zlib.crc32(done) & 0xffffffff
         done_crc = done_crc.to_bytes(4, 'big')
         done = index + payload + padding + done_crc
+        self.flag = 1
         self.serialPort.write(done)
 
     def resend_packet(self):

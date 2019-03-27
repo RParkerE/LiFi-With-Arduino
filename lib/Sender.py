@@ -149,6 +149,7 @@ class Sender_Driver:
         self.check_finish()
 
     def check_finish(self):
+        counter = 0
         packet_checker = self.serialPort.read(64)
         packet_num = packet_checker[:4]
         packet_num = packet_num.decode("utf-8") 
@@ -170,3 +171,11 @@ class Sender_Driver:
                     pass
                 else:
                     self.packet_creator(idx-1)
+
+        else:
+            if counter < 3:
+                time.sleep(1)
+                counter += 1
+            else:
+                self.my_fsm("timeout")
+                self.flag = 1
