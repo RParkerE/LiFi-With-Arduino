@@ -15,20 +15,37 @@ DueTimer myTimer = DueTimer(0);
 
 void setup() {
   // put your setup code here, to run once:
-  myTimer.attachInterrupt(handler).setPeriod(125);
+  //myTimer.attachInterrupt(handler).setPeriod(125);
   pin7in.input();
   pin4out.output();
 
   Serial.begin(115200);
+  Serial1.begin(115200);
   while (!Serial);
   
   pin4out = 1;
   while (!pin7in);
   while (Serial.available()) Serial.read();
-  Serial.print("Setup Complete");
+  //Serial.print("Setup Complete");
 }
 
 void loop() {
+
+  if(Serial.available()) {
+
+    Serial1.write(Serial.read());
+    
+  }
+
+  else if(Serial1.available()) {
+
+    Serial.write(Serial1.read());
+    
+  }
+  
+}
+
+/* void loop() {
   char strArray[64];
   
   while(pin7in){
@@ -129,4 +146,6 @@ void printbincharpad(char * c) {
         sendBinaryNum[i][7-j] = (c[i] & (1 << j)) ? '1' : '0';
     }
   }
-}
+}*/
+
+
