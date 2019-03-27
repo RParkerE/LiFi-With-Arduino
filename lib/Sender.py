@@ -173,9 +173,9 @@ class Sender_Driver:
                     self.packet_creator(idx-1)
 
         else:
-            if counter < 3:
+            while counter < 3:
                 time.sleep(1)
                 counter += 1
             else:
-                self.my_fsm("timeout")
+                self.my_fsm.on_event("timeout")
                 self.flag = 1
