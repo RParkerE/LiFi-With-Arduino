@@ -20,7 +20,7 @@ class Receiver_Driver:
         self.__packets_to_receive = 0
         self.__zero_padding = 0
 
-        self.__flag = 0
+        self.__flag = False
 
     @property
     def packet_list(self):
@@ -99,7 +99,7 @@ class Receiver_Driver:
             self.data_loop()
         else:
             print(packet_obj)
-            self.flag = 1
+            self.flag = True
             self.my_fsm.state = Receiver()
 
     def data_checker(self, data, checksum):
@@ -129,10 +129,8 @@ class Receiver_Driver:
                 i += 1
         if errors > 0:
             self.resend_packet()
-            self.my_fsm.on_event("resend")
         else:
             self.finish_packet()
-            self.my_fsm.on_event("finish")
 
         self.file.close()
 
@@ -146,7 +144,8 @@ class Receiver_Driver:
         done_crc = zlib.crc32(done) & 0xffffffff
         done_crc = done_crc.to_bytes(4, 'big')
         done = index + payload + padding + done_crc
-        self.flag = 1
+        self.flag = True
+        self.my_fsm.on_event("finish")
         self.serialPort.write(done)
 
     def resend_packet(self):
@@ -159,4 +158,6 @@ class Receiver_Driver:
         padding_size = (14 - len(idx_to_send)) * 4
         padding = b'0' * padding_size
         resend = index + idx_to_send[:-1] + padding
+        self.flag = False
+        self.my_fsm.on_event("resend")
         self.serialPort.write(resend)

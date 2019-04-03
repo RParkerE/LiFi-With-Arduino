@@ -22,7 +22,7 @@ class Sender_Driver:
         self.__file_obj = self.__file_obj + self.__padding.encode('utf-8')
         self.__file_data = list(zip(*[iter(self.__file_obj)]*56))
 
-        self.__flag = 0
+        self.__flag = False
 
     @property
     def packet_list(self):
@@ -159,11 +159,11 @@ class Sender_Driver:
 
         if (crc == checksum or crc == checksum + 1 or crc == checksum - 1) and packet_num == "DONE":
             self.my_fsm.on_event('finish')
-            self.flag = 1
+            self.flag = True
 
         elif (crc == checksum or crc == checksum + 1 or crc == checksum - 1) and packet_num == "RESE":
             self.my_fsm.on_event('resend')
-            self.flag = 0
+            self.flag = False
             while data:
                 idx = int.from_bytes(data[:4], 'big')
                 del data[:4]
@@ -178,4 +178,4 @@ class Sender_Driver:
                 counter += 1
             else:
                 self.my_fsm.on_event("timeout")
-                self.flag = 1
+                self.flag = True
