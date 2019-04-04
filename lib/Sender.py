@@ -142,8 +142,8 @@ class Sender_Driver:
             out_packet = self.packet_creator(i)
             self.serialPort.write(out_packet)
             i += 1
-
-        time.sleep(.5)
+        
+        time.sleep(max(self.file_size/4000,.25))
         self.my_fsm.on_event("")
         self.file.close()
 
