@@ -170,23 +170,4 @@ class SerialGUI(threading.Thread):
                 pass
         while not loop_active:
             loop_active = (self.rd.flag or self.sd.flag)
-        
-    """
-    def threadProcessor(self):
-        while self.my_queue.qsize():
-            try:
-                msg = self.my_queue.get(0)
-                if msg == "meta":
-                    self.state_machine.on_event("")
-                    self.rd.parse_meta()
-                else:
-                    pass
-
-            except queue.Empty:
-                # just on general principles, although we don't
-                # expect this branch to be taken in this case
-                pass
-    """
-
-# program = SerialGUI()
-# program.window.mainloop()
+            self.run()

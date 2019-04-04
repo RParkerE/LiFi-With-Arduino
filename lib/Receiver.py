@@ -54,6 +54,10 @@ class Receiver_Driver:
     def file(self):
         return self.__file
 
+    @file.setter
+    def file(self, f):
+        self.__file = f
+
     @property
     def packets_to_receive(self):
         return self.__packets_to_receive
@@ -96,6 +100,10 @@ class Receiver_Driver:
                     pass
             time.sleep(.025)
             self.my_fsm.on_event("")
+            self.file = open(self.file_name, "w")
+            self.file.write('')
+            self.file.close()
+            self.file = open(self.file_name, "ab")
             self.data_loop()
         else:
             print(packet_obj)
