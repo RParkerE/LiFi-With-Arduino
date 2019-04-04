@@ -143,7 +143,7 @@ class Sender_Driver:
             self.serialPort.write(out_packet)
             i += 1
 
-        time.sleep(.25)
+        time.sleep(.5)
         self.my_fsm.on_event("")
         self.file.close()
 

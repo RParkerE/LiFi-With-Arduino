@@ -159,15 +159,18 @@ class SerialGUI(threading.Thread):
     def run(self):
         loop_active = True
         while loop_active:
-            if self.serialPort.is_open and isinstance(self.state_machine.state, Receiver):
-                if self.serialPort.in_waiting > 63:
-                    loop_active = False
-                    self.state_machine.on_event("")
-                    self.rd.parse_meta()
+            try:
+                if self.serialPort.is_open and isinstance(self.state_machine.state, Receiver):
+                    if self.serialPort.in_waiting > 63:
+                        loop_active = False
+                        self.state_machine.on_event("")
+                        self.rd.parse_meta()
+                    else:
+                        pass
                 else:
                     pass
-            else:
-                pass
+            except OSError:
+                print("Please Reconnect!")
         while not loop_active:
             loop_active = (self.rd.flag or self.sd.flag)
             self.run()
