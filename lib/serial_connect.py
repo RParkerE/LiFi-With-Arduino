@@ -1,10 +1,17 @@
+"""
+serial_connect.py
+
+This file contains the functions for connecting to a serial device. It also has a function for
+finding and automatically connecting to Arduino devices.
+"""
+
 import time
 import warnings
 import platform
 from serial.tools import list_ports
 
 
-# Get Serial Port Associated With Arduino
+# Get Serial Port Associated With Arduino and connects to it
 def getArduinoPort():
 
 	arduino_ports = [

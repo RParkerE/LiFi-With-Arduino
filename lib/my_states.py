@@ -1,7 +1,12 @@
+"""
+my_states.py
+
+This file contains the definitions and transitions for ever state in our state machine.
+"""
+
 import serial
 from state import State
 from Sender import Sender_Driver
-# from Receiver import Receiver_Driver
 
 
 # Start Of Our States
@@ -73,10 +78,6 @@ class Create_Meta(State):
 			
 		return self
 
-	# TODO: Get file_name and serialPort from LiFiGUI
-	# sd = Sender_Driver("..\\files\\sender_test.txt", serial.Serial())
-	# sd.meta_creator()
-
 
 class Send_Data(State):
 	"""
@@ -88,10 +89,6 @@ class Send_Data(State):
 			return Wait()
 			
 		return self
-
-	# TODO: Get file_name and serialPort from LiFiGUI
-	# sd = Sender_Driver("..\\files\\sender_test.txt", serial.Serial())
-	# sd.packet_loop()
 
 
 class Wait(State):

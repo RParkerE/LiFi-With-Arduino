@@ -1,3 +1,9 @@
+"""
+Receiver.py
+
+This file contains all functions necessary for processing incoming data.
+"""
+
 import os
 import zlib
 import time
@@ -20,6 +26,7 @@ class Receiver_Driver:
         self.__packets_to_receive = 0
         self.__zero_padding = 0
 
+        # Used to reset thread in LiFiGUI.py
         self.__flag = False
 
     @property
@@ -82,6 +89,10 @@ class Receiver_Driver:
     def flag(self, data):
         self.__flag = data
 
+    """
+    This function parses the first packet for the number of packets to be received, how many 0's the
+    final packet will be padded with and the file extension for the received file.
+    """
     def parse_meta(self):
         self.flag = 0
         packet_obj = self.serialPort.read(64)
@@ -110,6 +121,9 @@ class Receiver_Driver:
             self.flag = True
             self.my_fsm.state = Receiver()
 
+    """
+    This function checks to see if the data received is corrupted. If it is it notes it, otherwise it saves the data.
+    """
     def data_checker(self, data, checksum):
         calc_crc = zlib.crc32(data)
         if (checksum == calc_crc):
@@ -118,6 +132,10 @@ class Receiver_Driver:
         else:
             self.packet_list = "ERROR"
             
+    """
+    This function reads the data from the sent file packet by packet and sends them individually to data_checker.
+    If there are no errors it calls finish_packet otherwise it calls resend_packet.
+    """
     def data_loop(self):
         packet_obj = self.serialPort.read(64)
 
@@ -142,6 +160,9 @@ class Receiver_Driver:
 
         self.file.close()
 
+    """
+    Let the sender know there were no errors in the received file.
+    """
     def finish_packet(self):
         index = "DONE"
         index = bytes(index.encode('utf-8'))
@@ -156,6 +177,9 @@ class Receiver_Driver:
         self.my_fsm.on_event("finish")
         self.serialPort.write(done)
 
+    """
+    Tell the sender which packets were corrupted. Limited to 12 packets at a time (56 data bytes / 4 index bytes)
+    """
     def resend_packet(self):
         index = "RESE"
         index = bytes(index.encode('utf-8'))

@@ -1,3 +1,9 @@
+"""
+state.py
+
+This file is a base template for my_states.py
+"""
+
 class State:
 	"""
 	Defining our state object to provide utility functions

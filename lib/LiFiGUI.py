@@ -1,3 +1,10 @@
+"""
+LiFiGUI.py
+
+This file contains our GUI class wich extends pythons threading library, allowing
+for the serial port to be polled in parallel with GUI interactions.
+"""
+
 # GUI Imports
 from tkinter import Tk, ttk
 from tkinter import Label, Button, Entry, messagebox
@@ -143,6 +150,7 @@ class SerialGUI(threading.Thread):
         self.sd.file_name = self.fileName
         self.inFileTxt.insert(0, self.fileName)
 
+    # Call functions associated with sending a file
     def pushToSend(self):
         if self.fileName != "" and self.serialPort.is_open:
             self.state_machine.on_event("send")
@@ -156,11 +164,13 @@ class SerialGUI(threading.Thread):
 
         self.startButton["text"] = "SEND"
 
+    # Thread to check data on serial port
     def run(self):
         loop_active = True
         while loop_active:
             try:
                 if self.serialPort.is_open and isinstance(self.state_machine.state, Receiver):
+                    # Wait until there is an entire packet waiting (1 Packet = 64 Bytes)
                     if self.serialPort.in_waiting > 63:
                         loop_active = False
                         self.state_machine.on_event("")
