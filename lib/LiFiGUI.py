@@ -21,8 +21,7 @@ from serial_connect import connectToSerial, disconnectFromSerial
 
 
 class SerialGUI(threading.Thread):
-    def __init__(self, fsm, sender, receiver, in_queue):
-        self.__my_queue = in_queue
+    def __init__(self, fsm, sender, receiver):
 
         # Define GUI Window, Call createWidgets()
         self.window = Tk()
