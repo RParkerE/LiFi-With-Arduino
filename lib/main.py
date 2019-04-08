@@ -20,7 +20,7 @@ class Main:
         self.__rd = Receiver_Driver(self.__my_fsm)
 
         # Create a GUI object
-        self.__my_gui = SerialGUI(self.__my_fsm, self.__sd, self.__rd, self.__my_queue)
+        self.__my_gui = SerialGUI(self.__my_fsm, self.__sd, self.__rd)
         self.__my_gui.window.mainloop()
 
 
