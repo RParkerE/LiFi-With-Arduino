@@ -29,6 +29,10 @@ LiFi
 │     ├── lib
 │     │   │   Arduino-GPIO
 │     │   └── DueTimer
+├─── hardware
+│     ├─── LiFiShieldV2.brd
+│     ├─── LiFiShieldV2.sch
+│     └─── README.MD
 ├─── lib
 │     ├─── fsm.py
 │     ├─── LiFiGUI.py
