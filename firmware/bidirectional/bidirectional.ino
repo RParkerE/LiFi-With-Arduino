@@ -19,10 +19,10 @@ void setup() {
   pin7in.input();
   pin4out.output();
   pinMode(DAC0, OUTPUT);
-  analogWrite(DAC0, 96);
+  analogWrite(DAC0, 24);
 
-  Serial.begin(115200);
-  Serial1.begin(115200);
+  Serial.begin(9600);
+  Serial1.begin(9600);
   while (!Serial);
   
   pin4out = 1;
