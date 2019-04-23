@@ -22,6 +22,8 @@ LiFi
 ├─── files
 │     └─── out.txt
 ├─── firmware
+│     ├── bidirectional
+│     │   └── bidirectional.ino
 │     ├── driver_receive
 │     │   └── driver_receive.ino
 │     ├── driver_send
@@ -126,6 +128,9 @@ and the state machine is pushed back to the Receive_Data state.
 Sets DAC0 voltage, Serial, and Serial1.
 
 If Serial is available (Sending) write to Serial1. If Serial1 is available (Receiving) write to Serial.
+
+#### Driver_Receive & Driver_Send
+These are deprecated. Use the bidirectional code instead.
 
 ### Hardware
 Refer to the README within the subdirectory
