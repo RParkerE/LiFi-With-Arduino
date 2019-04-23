@@ -29,7 +29,7 @@ LiFi
 │     ├── driver_send
 │     │   └── driver_send.ino
 │     ├── lib
-│     │   │   Arduino-GPIO
+│     │   ├── Arduino-GPIO
 │     │   └── DueTimer
 ├─── hardware
 │     ├─── LiFiShieldV2.brd
@@ -136,3 +136,10 @@ These are deprecated. Use the bidirectional code instead.
 Refer to the README within the subdirectory
 
 ### Further Development
+There are many areas which can be further developed. Some ideas for what could be done are listed below:
+
+- Create a more sophisticated packet system
+- Optimize for distance and speed
+- Update driver to allow for more than file transfers
+    - Possibly be able to connect to internet
+- Move from point-to-point communication to a hub-client type communication
