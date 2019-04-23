@@ -1,3 +1,10 @@
+"""
+LiFiGUI.py
+
+This file contains our GUI class wich extends pythons threading library, allowing
+for the serial port to be polled in parallel with GUI interactions.
+"""
+
 # GUI Imports
 from tkinter import Tk, ttk
 from tkinter import Label, Button, Entry, messagebox
@@ -14,8 +21,7 @@ from serial_connect import connectToSerial, disconnectFromSerial
 
 
 class SerialGUI(threading.Thread):
-    def __init__(self, fsm, sender, receiver, in_queue):
-        self.__my_queue = in_queue
+    def __init__(self, fsm, sender, receiver):
 
         # Define GUI Window, Call createWidgets()
         self.window = Tk()
@@ -143,6 +149,7 @@ class SerialGUI(threading.Thread):
         self.sd.file_name = self.fileName
         self.inFileTxt.insert(0, self.fileName)
 
+    # Call functions associated with sending a file
     def pushToSend(self):
         if self.fileName != "" and self.serialPort.is_open:
             self.state_machine.on_event("send")
@@ -156,37 +163,23 @@ class SerialGUI(threading.Thread):
 
         self.startButton["text"] = "SEND"
 
+    # Thread to check data on serial port
     def run(self):
         loop_active = True
         while loop_active:
-            if self.serialPort.is_open and isinstance(self.state_machine.state, Receiver):
-                if self.serialPort.in_waiting > 63:
-                    loop_active = False
-                    self.state_machine.on_event("")
-                    self.rd.parse_meta()
+            try:
+                if self.serialPort.is_open and isinstance(self.state_machine.state, Receiver):
+                    # Wait until there is an entire packet waiting (1 Packet = 64 Bytes)
+                    if self.serialPort.in_waiting > 63:
+                        loop_active = False
+                        self.state_machine.on_event("")
+                        self.rd.parse_meta()
+                    else:
+                        pass
                 else:
                     pass
-            else:
-                pass
+            except OSError:
+                print("Please Reconnect!")
         while not loop_active:
             loop_active = (self.rd.flag or self.sd.flag)
-        
-    """
-    def threadProcessor(self):
-        while self.my_queue.qsize():
-            try:
-                msg = self.my_queue.get(0)
-                if msg == "meta":
-                    self.state_machine.on_event("")
-                    self.rd.parse_meta()
-                else:
-                    pass
-
-            except queue.Empty:
-                # just on general principles, although we don't
-                # expect this branch to be taken in this case
-                pass
-    """
-
-# program = SerialGUI()
-# program.window.mainloop()
+            self.run()

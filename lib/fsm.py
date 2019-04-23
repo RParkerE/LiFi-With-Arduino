@@ -1,3 +1,10 @@
+"""
+fsm.py
+
+This file contains our state machine class (FSM) and gives access to states
+and state transitions.
+"""
+
 from my_states import Receiver, Sender
 
 

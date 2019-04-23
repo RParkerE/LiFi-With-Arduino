@@ -1,3 +1,9 @@
+"""
+Sender.py
+
+This file contains all functions necessary for processing outgoing data.
+"""
+
 import math
 import zlib
 import time
@@ -22,7 +28,8 @@ class Sender_Driver:
         self.__file_obj = self.__file_obj + self.__padding.encode('utf-8')
         self.__file_data = list(zip(*[iter(self.__file_obj)]*56))
 
-        self.__flag = 0
+        # Used to restart the thread in LiFiGUI.py
+        self.__flag = False
 
     @property
     def packet_list(self):
@@ -92,6 +99,11 @@ class Sender_Driver:
     def flag(self, data):
         self.__flag = data
 
+    """
+    This function parses a file and creates a meta packet with the total number of packets to be received (excluding
+    the meta packet itself), the number of 0's appended to the end of the last packet, and the file extension of the
+    file to be sent.
+    """
     def meta_creator(self):
         self.serialPort.reset_input_buffer()
         self.serialPort.reset_output_buffer()
@@ -120,7 +132,6 @@ class Sender_Driver:
         meta_crc = meta_crc.to_bytes(4, 'big')
         meta = index + param_1 + param_2 + param_3 + padding + meta_crc
         self.serialPort.write(meta)
-        # TODO: FSM on_event to move to Send_Data State
         self.my_fsm.on_event("")
         self.packet_loop()
 
@@ -136,18 +147,27 @@ class Sender_Driver:
         self.packet_list = packet
         return packet
 
+    """
+    For every 56 bytes in the file, call packet_creator. Sleep for a short time so that the driver has time
+    to receive a finish or resend packet.
+    """
     def packet_loop(self):
         i = 0
         while i < self.packet_num:
             out_packet = self.packet_creator(i)
             self.serialPort.write(out_packet)
             i += 1
-
+        
+        time.sleep(max(self.file_size/4000,.25))
         self.my_fsm.on_event("")
         self.file.close()
 
         self.check_finish()
 
+    """
+    This function reads the incoming data and checks if it is a valid resend or finish packet. If it is
+    it handles it accordingly. Finish -> Receiver State | Resend -> Send_Data State
+    """
     def check_finish(self):
         counter = 0
         packet_checker = self.serialPort.read(64)
@@ -159,11 +179,11 @@ class Sender_Driver:
 
         if (crc == checksum or crc == checksum + 1 or crc == checksum - 1) and packet_num == "DONE":
             self.my_fsm.on_event('finish')
-            self.flag = 1
+            self.flag = True
 
         elif (crc == checksum or crc == checksum + 1 or crc == checksum - 1) and packet_num == "RESE":
             self.my_fsm.on_event('resend')
-            self.flag = 0
+            self.flag = False
             while data:
                 idx = int.from_bytes(data[:4], 'big')
                 del data[:4]
@@ -178,4 +198,4 @@ class Sender_Driver:
                 counter += 1
             else:
                 self.my_fsm.on_event("timeout")
-                self.flag = 1
+                self.flag = True

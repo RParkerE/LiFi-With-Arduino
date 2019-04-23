@@ -2,33 +2,39 @@
 
 ## Table Of Contents
 1. [Introduction](#introduction)
-2. [Code Architecture](#code-architecture)
+2. [File Architecture](#file-architecture)
 3. [GUI](#gui)
 4. [State Machine](#state-machine)
     1. [Sender States](#sender-states)
     2. [Receiver States](#receiver-states)
-5. [Threads](#threads)
 6. [Firmware](#firmware)
 7. [Hardware](#hardware)
+8. [Further Development](#further-development)
 
 ### Introduction
 The aim of this project is to design and build a demonstration product of a low cost LiFi communication system for the 
 home. The system will consist of a module that encodes and modulates a digital signal into an LED transmitter/receiver 
 pair through the medium of air over a reasonable distance.
 
-### Code Architecture
+### File Architecture
 ```
 LiFi
 ├─── files
 │     └─── out.txt
 ├─── firmware
+│     ├── bidirectional
+│     │   └── bidirectional.ino
 │     ├── driver_receive
 │     │   └── driver_receive.ino
 │     ├── driver_send
 │     │   └── driver_send.ino
 │     ├── lib
-│     │   │   Arduino-GPIO
+│     │   ├── Arduino-GPIO
 │     │   └── DueTimer
+├─── hardware
+│     ├─── LiFiShieldV2.brd
+│     ├─── LiFiShieldV2.sch
+│     └─── README.MD
 ├─── lib
 │     ├─── fsm.py
 │     ├─── LiFiGUI.py
@@ -97,9 +103,7 @@ This state waits for a reply from the receiver side. If a Finish Packet is recei
 back to the Receive state. If a Resend Packet is received, then it moves the state machine back to Send_Data, and 
 resends the packets with errors.
 
-
 #### Receiver States
-
 There are 3 states that are associated with the Receiver driver:
 
 ##### Receiver
@@ -120,5 +124,22 @@ and the state machine is pushed back to the Receive_Data state.
 
 ### Firmware
 
+#### Bidirectional
+Sets DAC0 voltage, Serial, and Serial1.
+
+If Serial is available (Sending) write to Serial1. If Serial1 is available (Receiving) write to Serial.
+
+#### Driver_Receive & Driver_Send
+These are deprecated. Use the bidirectional code instead.
 
 ### Hardware
+Refer to the README within the subdirectory
+
+### Further Development
+There are many areas which can be further developed. Some ideas for what could be done are listed below:
+
+- Create a more sophisticated packet system
+- Optimize for distance and speed
+- Update driver to allow for more than file transfers
+    - Possibly be able to connect to internet
+- Move from point-to-point communication to a hub-client type communication

@@ -1,3 +1,9 @@
+"""
+Receiver.py
+
+This file contains all functions necessary for processing incoming data.
+"""
+
 import os
 import zlib
 import time
@@ -20,7 +26,8 @@ class Receiver_Driver:
         self.__packets_to_receive = 0
         self.__zero_padding = 0
 
-        self.__flag = 0
+        # Used to reset thread in LiFiGUI.py
+        self.__flag = False
 
     @property
     def packet_list(self):
@@ -54,6 +61,10 @@ class Receiver_Driver:
     def file(self):
         return self.__file
 
+    @file.setter
+    def file(self, f):
+        self.__file = f
+
     @property
     def packets_to_receive(self):
         return self.__packets_to_receive
@@ -78,6 +89,10 @@ class Receiver_Driver:
     def flag(self, data):
         self.__flag = data
 
+    """
+    This function parses the first packet for the number of packets to be received, how many 0's the
+    final packet will be padded with and the file extension for the received file.
+    """
     def parse_meta(self):
         self.flag = 0
         packet_obj = self.serialPort.read(64)
@@ -96,12 +111,19 @@ class Receiver_Driver:
                     pass
             time.sleep(.025)
             self.my_fsm.on_event("")
+            self.file = open(self.file_name, "w")
+            self.file.write('')
+            self.file.close()
+            self.file = open(self.file_name, "ab")
             self.data_loop()
         else:
             print(packet_obj)
-            self.flag = 1
+            self.flag = True
             self.my_fsm.state = Receiver()
 
+    """
+    This function checks to see if the data received is corrupted. If it is it notes it, otherwise it saves the data.
+    """
     def data_checker(self, data, checksum):
         calc_crc = zlib.crc32(data)
         if (checksum == calc_crc):
@@ -110,6 +132,10 @@ class Receiver_Driver:
         else:
             self.packet_list = "ERROR"
             
+    """
+    This function reads the data from the sent file packet by packet and sends them individually to data_checker.
+    If there are no errors it calls finish_packet otherwise it calls resend_packet.
+    """
     def data_loop(self):
         packet_obj = self.serialPort.read(64)
 
@@ -129,13 +155,14 @@ class Receiver_Driver:
                 i += 1
         if errors > 0:
             self.resend_packet()
-            self.my_fsm.on_event("resend")
         else:
             self.finish_packet()
-            self.my_fsm.on_event("finish")
 
         self.file.close()
 
+    """
+    Let the sender know there were no errors in the received file.
+    """
     def finish_packet(self):
         index = "DONE"
         index = bytes(index.encode('utf-8'))
@@ -146,9 +173,13 @@ class Receiver_Driver:
         done_crc = zlib.crc32(done) & 0xffffffff
         done_crc = done_crc.to_bytes(4, 'big')
         done = index + payload + padding + done_crc
-        self.flag = 1
+        self.flag = True
+        self.my_fsm.on_event("finish")
         self.serialPort.write(done)
 
+    """
+    Tell the sender which packets were corrupted. Limited to 12 packets at a time (56 data bytes / 4 index bytes)
+    """
     def resend_packet(self):
         index = "RESE"
         index = bytes(index.encode('utf-8'))
@@ -159,4 +190,6 @@ class Receiver_Driver:
         padding_size = (14 - len(idx_to_send)) * 4
         padding = b'0' * padding_size
         resend = index + idx_to_send[:-1] + padding
+        self.flag = False
+        self.my_fsm.on_event("resend")
         self.serialPort.write(resend)
