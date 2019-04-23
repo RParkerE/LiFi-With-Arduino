@@ -33,7 +33,7 @@ def connectToSerial(self):
 	sys_name = platform.system()
 	if self.inComPort.get() == "":
 		self.comPort = getArduinoPort()
-		self.baudRate = 115200
+		self.baudRate = 14400
 	else:
 		if sys_name == "Windows":
 			self.comPort = "COM" + self.inComPort.get()
